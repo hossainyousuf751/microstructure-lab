@@ -5,6 +5,9 @@ versions follow [Semantic Versioning](https://semver.org/) (0.x: minor bumps may
 
 ## [Unreleased]
 
+### Changed
+- CI uses `actions/checkout@v7` and `actions/setup-python@v7` (Node 24); v4/v5 ran on the deprecated Node 20.
+
 ## [0.2.0] - 2026-11-01
 
 ### Added

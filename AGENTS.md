@@ -25,7 +25,8 @@ Run both checks before you report a task as done, and report their real output.
 - **No network in tests**, no new core dependencies, no committed data.
 - **Git:** don't commit, push, tag or open PRs unless the user asks. Never force-push `main`.
 - **Leave a trail.** Give every PR a conventional title (`feat:`, `fix:`, `docs:`, ...): it becomes
-  the CHANGELOG entry. Never edit `CHANGELOG.md`, the version, or tags by hand; release-please does.
+  the CHANGELOG entry, and a `feat:`/`fix:`/`docs:`/`perf:`/`refactor:` merge is released to PyPI
+  automatically. Never edit `CHANGELOG.md`, the version, or tags by hand; release-please does.
 
 ## Where things are
 

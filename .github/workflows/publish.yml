@@ -1,12 +1,15 @@
 name: publish
 
-# Automated releases.
-# Every push to main runs release-please, which keeps one "release PR" open with the next
-# version (from conventional commit titles) and the CHANGELOG entry. Merging that PR makes
-# release-please tag the commit and publish the GitHub Release, and this same run then builds
-# the package and uploads it to PyPI with trusted publishing (no stored token).
-# The upload must live in this run: a release created with GITHUB_TOKEN does not trigger
-# other workflows. PyPI trusts this file by name, so keep it called publish.yml.
+# Fully automated releases. On every push to main:
+#   1. the tests run on main (a failing main never releases);
+#   2. release-please opens or updates the release PR (next version from conventional commit
+#      titles, plus the CHANGELOG entry), and this workflow merges it straight away;
+#   3. release-please runs again, sees the merged release PR, and tags vX.Y.Z and publishes the
+#      GitHub Release;
+#   4. the package is built from the tag and uploaded to PyPI with trusted publishing.
+# All of it happens in one run on purpose: anything done with GITHUB_TOKEN (merging the release
+# PR, creating the release) does not trigger further workflows.
+# PyPI's trusted publisher is bound to this file name: keep it publish.yml.
 
 on:
   push:
@@ -14,33 +17,71 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: publish        # two quick merges must not release twice
+  cancel-in-progress: false
+
 jobs:
-  release-please:
+  release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # tag and GitHub Release
-      pull-requests: write   # open and update the release PR
+      contents: write        # merge the release PR, tag, GitHub Release
+      pull-requests: write   # open, update and merge the release PR
       issues: write          # release PR labels
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      release_created: ${{ steps.after.outputs.release_created || steps.before.outputs.release_created }}
+      tag_name: ${{ steps.after.outputs.tag_name || steps.before.outputs.tag_name }}
     steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: pip install -e ".[dev]"
+      - name: Tests gate the release
+        run: ruff check . && pytest -q
+
       - uses: googleapis/release-please-action@v5
-        id: release
+        id: before
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Merge the release PR
+        id: merge
+        if: steps.before.outputs.release_created != 'true' && steps.before.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label "autorelease: pending" --json number --jq '.[0].number')
+          test -n "$pr" || { echo "no open release PR found"; exit 1; }
+          # GitHub computes mergeability a moment after the PR is created or updated: retry briefly
+          for attempt in 1 2 3 4 5 6; do
+            gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch && break
+            test "$attempt" -lt 6 || exit 1
+            sleep 5
+          done
+          echo "merged=true" >> "$GITHUB_OUTPUT"
+          sleep 5    # let the merge settle before release-please looks for it
+
+      - uses: googleapis/release-please-action@v5
+        id: after
+        if: steps.merge.outputs.merged == 'true'
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
   build:
-    needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    needs: release
+    if: needs.release.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          ref: ${{ needs.release.outputs.tag_name }}
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
@@ -50,7 +91,7 @@ jobs:
       - name: Tag matches package version
         run: |
           version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          tag="${{ needs.release-please.outputs.tag_name }}"
+          tag="${{ needs.release.outputs.tag_name }}"
           test "v$version" = "$tag" || { echo "tag $tag != v$version"; exit 1; }
       - uses: actions/upload-artifact@v7
         with:

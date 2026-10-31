@@ -1,6 +1,6 @@
 # microstructure-lab
 
-[![tests](https://github.com/hossainyousuf751/microstructure-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/hossainyousuf751/microstructure-lab/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![tests](https://github.com/hossainyousuf751/microstructure-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/hossainyousuf751/microstructure-lab/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/hossainyousuf751/microstructure-lab/blob/main/LICENSE)
 
 Limit order book reconstruction, order-flow analytics, and market-making simulation.
 The analytics are validated on a zero-intelligence order book simulator, then run unchanged
@@ -30,8 +30,8 @@ python 06_cross_venue.py ../data/btcusdt_<timestamp>               # which venue
 | `analysis.py` | Price-impact regressions, impact vs depth, out-of-sample predictability, Stoikov micro-price, cross-venue lead-lag |
 | `market_making.py` | Avellaneda–Stoikov optimal market maker vs a symmetric benchmark, in the paper's model and inside the order book |
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the rules, roles and workflow, and
-[CHANGELOG.md](CHANGELOG.md) for what changed.
+See [CONTRIBUTING.md](https://github.com/hossainyousuf751/microstructure-lab/blob/main/CONTRIBUTING.md) for the rules, roles and workflow, and
+[CHANGELOG.md](https://github.com/hossainyousuf751/microstructure-lab/blob/main/CHANGELOG.md) for what changed.
 
 **Book synchronisation.** Binance publishes a REST snapshot plus a diff stream. A correct
 local book has to drop diffs already in the snapshot, check that the first applied diff
@@ -52,22 +52,22 @@ On 4.6 simulated hours (400,000 book events) of a market where no participant ha
 | Δmid on OFI of the best 1 → 5 levels, 10 s | out-of-sample R² 0.66 → 0.79 → 0.85 → 0.86 → **0.88** | Xu, Gould & Howison (2019) |
 | Forecast of the mid after the next mid change | Stoikov micro-price −6.6% MSE vs mid; naive microprice −1.3% | Stoikov (2018) |
 
-![OFI impact](docs/simulated_lob_ofi_impact.png)
+![OFI impact](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/simulated_lob_ofi_impact.png)
 
-![Impact vs depth](docs/simulated_lob_impact_depth.png)
+![Impact vs depth](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/simulated_lob_impact_depth.png)
 
 **Explaining is not predicting.** Order flow explains two-thirds of price changes in the same
 interval but almost none of the next 10 seconds. Queue imbalance strongly predicts the *next*
 price move, but in a liquid book many moves happen within a 10-second bucket. The edge is real
 at the event horizon, and only accessible to someone fast enough to act on it.
 
-![Queue imbalance](docs/simulated_lob_queue_imbalance.png)
+![Queue imbalance](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/simulated_lob_queue_imbalance.png)
 
 **Deeper order flow matters.** Best-level OFI misses flow that arrives one level back and becomes
 the best queue a moment later. Adding the second level lifts out-of-sample R² from 0.66 to 0.79,
 and five levels reach 0.88. In-sample and out-of-sample R² agree, so this is not overfitting.
 
-![Multi-level OFI](docs/simulated_lob_multi_level_ofi.png)
+![Multi-level OFI](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/simulated_lob_multi_level_ofi.png)
 
 **The naive microprice overshoots; Stoikov's micro-price doesn't.** The imbalance-weighted mid is
 a worse forecast of the very next mid than the mid itself (−82% at one update, out of sample), and
@@ -80,7 +80,7 @@ error than the mid for the next change, and 4.2% for the one after, against 1.3%
 naive microprice. At one book update it still loses to the mid (−18%), because most updates
 don't move the price at all.
 
-![Micro-price](docs/simulated_lob_microprice.png)
+![Micro-price](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/simulated_lob_microprice.png)
 
 One detail matters for the estimator: with small integer queues a perfectly balanced book
 (imbalance exactly 0.5) is common. With the usual 10 imbalance buckets those states land in an
@@ -105,7 +105,7 @@ A = 140, k = 1.5, 4,000 simulations:
 The paper reports approximately 62.9 (std 5.9) and 67.2 (std 13.4) for γ = 0.1. Inventory
 management halves P&L volatility and keeps inventory three times tighter, for about 5% less profit.
 
-![Avellaneda-Stoikov](docs/avellaneda_stoikov.png)
+![Avellaneda-Stoikov](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/avellaneda_stoikov.png)
 
 **A finding along the way.** My first implementation evaluated fills before moving the mid within
 each time step, and gave 65.1 for the inventory strategy, about 2 above the paper and outside
@@ -137,7 +137,7 @@ as an illustration of the pipeline.
 | Multi-level OFI, best 1 → 10 levels (5 s) | out-of-sample R² 0.50 → 0.40–0.49: no gain | 0.66 → 0.88, 1 → 5 levels (10 s) |
 | Micro-price vs mid, next price change | Stoikov −0.34% MSE, naive −0.32%: no real edge | Stoikov −6.6%, naive −1.3% |
 
-![Binance OFI impact](docs/binance_btcusdt_ofi_impact.png)
+![Binance OFI impact](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/binance_btcusdt_ofi_impact.png)
 
 **What survives contact with a real book.** The contemporaneous OFI relation is at least as
 strong live as in the simulator at 1-second buckets, and impact is still larger when the book is
@@ -192,7 +192,7 @@ paper's model (Study 2), where a fill says little about the next price move.
 is used up. The inventory quoter loses −0.21 to −0.35 in the first second and keeps losing until
 −0.30 to −0.53 at ten seconds, so its fills come before sustained moves, not just a one-tick jump.
 
-![AS in the LOB](docs/as_in_lob.png)
+![AS in the LOB](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/as_in_lob.png)
 
 ## Study 5: which venue moves first?
 
@@ -211,7 +211,7 @@ Same session as Study 3 (40 minutes; 76,296 Binance and 24,969 Bybit quote updat
 | Binance | 0.56 | 0.16 | 0.56 | 0.014 | 0.009 |
 | Bybit | 0.58 | 0.28 | 0.60 | 0.004 | 0.004 |
 
-![Lead-lag](docs/cross_venue_lead_lag.png)
+![Lead-lag](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/cross_venue_lead_lag.png)
 
 **No exploitable lead at this resolution.** Returns are most correlated at 0 ms (0.09): the
 venues move within the same 50 ms. Each venue's own order flow explains its price far better than

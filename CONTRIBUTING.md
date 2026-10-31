@@ -51,8 +51,11 @@ Nothing in `src/` imports from `examples/`.
    ```
 
 6. **Open a PR** using the checklist below. Squash-merge into `main`.
-7. **Release**: maintainer moves `[Unreleased]` in `CHANGELOG.md` to a version, bumps
-   `pyproject.toml`, tags `vX.Y.Z`.
+7. **Release**: maintainer moves `[Unreleased]` in `CHANGELOG.md` to a version and bumps
+   `pyproject.toml` in a PR, then publishes a GitHub Release tagged `vX.Y.Z` on the merged
+   commit. Publishing the release uploads that version to PyPI (`.github/workflows/publish.yml`);
+   the workflow refuses a tag that doesn't match the package version. PyPI versions can't be
+   replaced, so a mistake means a new patch release.
 
 ## Rules
 

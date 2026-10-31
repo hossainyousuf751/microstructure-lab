@@ -5,6 +5,10 @@ versions follow [Semantic Versioning](https://semver.org/) (0.x: minor bumps may
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-01
+
+First release on PyPI (`pip install lobkit`). No change to the library's behaviour.
+
 ### Added
 - Publishing to PyPI: `.github/workflows/publish.yml` builds, checks and uploads the package
   when a GitHub Release is published, via PyPI trusted publishing (no stored token). It refuses

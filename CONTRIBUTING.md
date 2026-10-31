@@ -8,7 +8,7 @@ rule in a PR; don't quietly break it.
 
 | Role | Responsible for |
 |---|---|
-| **Maintainer** | Owns `main`, the roadmap and releases. Merges PRs, decides scope, bumps the version, keeps `CHANGELOG.md` honest. Final say on whether a result is good enough to publish in the README. |
+| **Maintainer** | Owns `main`, the roadmap and releases. Merges PRs, decides scope, and merges the release PR when a release should go out. Final say on whether a result is good enough to publish in the README. |
 | **Contributor** | Delivers one focused change per PR: code + tests + docs + regenerated figures. Runs the full check locally before asking for review. States in the PR which README numbers changed and why. |
 | **Reviewer** | Checks correctness against the cited paper, not just that tests pass. Re-runs any example whose output the PR changes. Rejects PRs that weaken tests to go green. |
 | **CI** (`.github/workflows/ci.yml`) | Lint + test on every push and PR, Python 3.10–3.13. A red CI blocks merge, no exceptions. |
@@ -41,8 +41,18 @@ Nothing in `src/` imports from `examples/`.
    bigger than a bug fix gets an issue first so two people don't build the same thing.
 2. **Branch from `main`**: `feat/<topic>`, `fix/<topic>`, `docs/<topic>`, `chore/<topic>`.
 3. **Small PRs.** One concern each. A refactor and a behaviour change are two PRs.
-4. **Commit messages**: imperative, ≤ 72-char subject, optional type prefix
-   (`feat:`, `fix:`, `docs:`, `test:`, `chore:`). Body says *why*.
+4. **PR titles are conventional commits** (checked by CI): `type: imperative summary`, ≤ 72
+   chars. Squash-merging makes the title the commit on `main`, and releases are built from it:
+
+   | Type | Version bump | CHANGELOG section |
+   |---|---|---|
+   | `feat:` | minor (0.x) | Added |
+   | `fix:` | patch | Fixed |
+   | `perf:`, `refactor:` | none on its own | Changed |
+   | `docs:` | none on its own | Documentation |
+   | `chore:`, `ci:`, `build:`, `test:`, `style:` | none | not listed |
+
+   `feat!:` (or a `BREAKING CHANGE:` footer) marks a breaking change. Commit bodies say *why*.
 5. **Before pushing**, run the full check:
 
    ```bash
@@ -51,11 +61,12 @@ Nothing in `src/` imports from `examples/`.
    ```
 
 6. **Open a PR** using the checklist below. Squash-merge into `main`.
-7. **Release**: maintainer moves `[Unreleased]` in `CHANGELOG.md` to a version and bumps
-   `pyproject.toml` in a PR, then publishes a GitHub Release tagged `vX.Y.Z` on the merged
-   commit. Publishing the release uploads that version to PyPI (`.github/workflows/publish.yml`);
-   the workflow refuses a tag that doesn't match the package version. PyPI versions can't be
-   replaced, so a mistake means a new patch release.
+7. **Releases are automated** (`.github/workflows/publish.yml`, release-please). After every
+   merge to `main`, a release PR titled `chore(main): release X.Y.Z` is opened or updated with
+   the version bump and the CHANGELOG entry. Merging it tags `vX.Y.Z`, publishes the GitHub
+   Release and uploads the package to PyPI, in one run. Nobody bumps versions, edits the
+   CHANGELOG or creates tags by hand. To force a version, put `Release-As: X.Y.Z` in a commit
+   body. PyPI versions can't be replaced, so a bad release is fixed by the next one.
 
 ## Rules
 
@@ -113,7 +124,8 @@ The whole library agrees on these column names. Don't invent synonyms.
 
 ### Docs
 
-- `README.md` is the paper: results, figures, method. `CHANGELOG.md` is the history.
+- `README.md` is the paper: results, figures, method. `CHANGELOG.md` is the history, and is
+  generated.
 - Figures in `docs/` are generated, never hand-edited. Regenerate rather than patch.
 - Roadmap checkboxes are ticked in the PR that completes the milestone.
 
@@ -125,5 +137,5 @@ The whole library agrees on these column names. Don't invent synonyms.
 - [ ] New/changed behaviour has a test; no test was weakened
 - [ ] Models cite their paper in the docstring
 - [ ] README numbers/figures regenerated if they changed (say which)
-- [ ] CHANGELOG.md `[Unreleased]` updated
+- [ ] PR title is a conventional commit (`feat:`, `fix:`, `docs:`, ...) describing the change
 ```

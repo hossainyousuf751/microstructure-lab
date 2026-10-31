@@ -1,9 +1,8 @@
 # Changelog
 
-All notable changes to this project. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
-versions follow [Semantic Versioning](https://semver.org/) (0.x: minor bumps may break the API).
-
-## [Unreleased]
+All notable changes to this project. Versions follow [Semantic Versioning](https://semver.org/)
+(0.x: minor bumps may break the API). From 0.2.2 on, entries are written by release-please from
+the conventional titles of merged PRs; don't edit this file by hand.
 
 ## [0.2.1] - 2026-11-01
 

@@ -24,7 +24,8 @@ Run both checks before you report a task as done, and report their real output.
 - **Keep the column contract** (`ts, bid_px, bid_sz, ask_px, ask_sz`; trades `ts, price, qty, side`).
 - **No network in tests**, no new core dependencies, no committed data.
 - **Git:** don't commit, push, tag or open PRs unless the user asks. Never force-push `main`.
-- **Leave a trail.** Update `CHANGELOG.md` `[Unreleased]` for any user-visible change.
+- **Leave a trail.** Give every PR a conventional title (`feat:`, `fix:`, `docs:`, ...): it becomes
+  the CHANGELOG entry. Never edit `CHANGELOG.md`, the version, or tags by hand; release-please does.
 
 ## Where things are
 

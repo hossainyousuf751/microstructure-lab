@@ -6,6 +6,14 @@ Limit order book reconstruction, order-flow analytics, and market-making simulat
 The analytics are validated on a zero-intelligence order book simulator, then run unchanged
 on live Binance data.
 
+The library alone, from PyPI:
+
+```bash
+pip install lobkit              # add [plot] for figures, [live] to record exchange data
+```
+
+The studies below live in this repository, so to reproduce them clone it and run:
+
 ```bash
 pip install -e ".[dev]"
 ruff check . && pytest

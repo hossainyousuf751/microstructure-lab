@@ -8,7 +8,7 @@ rule in a PR; don't quietly break it.
 
 | Role | Responsible for |
 |---|---|
-| **Maintainer** | Owns `main`, the roadmap and releases. Merges PRs, decides scope, and merges the release PR when a release should go out. Final say on whether a result is good enough to publish in the README. |
+| **Maintainer** | Owns `main`, the roadmap and releases. Merges PRs (which publishes them, see Workflow step 7) and decides scope. Final say on whether a result is good enough to publish in the README. |
 | **Contributor** | Delivers one focused change per PR: code + tests + docs + regenerated figures. Runs the full check locally before asking for review. States in the PR which README numbers changed and why. |
 | **Reviewer** | Checks correctness against the cited paper, not just that tests pass. Re-runs any example whose output the PR changes. Rejects PRs that weaken tests to go green. |
 | **CI** (`.github/workflows/ci.yml`) | Lint + test on every push and PR, Python 3.10–3.13. A red CI blocks merge, no exceptions. |
@@ -61,12 +61,15 @@ Nothing in `src/` imports from `examples/`.
    ```
 
 6. **Open a PR** using the checklist below. Squash-merge into `main`.
-7. **Releases are automated** (`.github/workflows/publish.yml`, release-please). After every
-   merge to `main`, a release PR titled `chore(main): release X.Y.Z` is opened or updated with
-   the version bump and the CHANGELOG entry. Merging it tags `vX.Y.Z`, publishes the GitHub
-   Release and uploads the package to PyPI, in one run. Nobody bumps versions, edits the
-   CHANGELOG or creates tags by hand. To force a version, put `Release-As: X.Y.Z` in a commit
-   body. PyPI versions can't be replaced, so a bad release is fixed by the next one.
+7. **Releases are fully automated** (`.github/workflows/publish.yml`, release-please). Every
+   merge to `main` whose title is `feat:`, `fix:`, `docs:`, `perf:` or `refactor:` is a release:
+   the workflow runs the tests on `main`, has release-please open the release PR
+   (`chore(main): release X.Y.Z`: version bump + CHANGELOG entry), merges it, tags `vX.Y.Z`,
+   publishes the GitHub Release and uploads to PyPI, all in one run. `chore:`, `ci:`, `test:`,
+   `build:` and `style:` merges don't release. So **merging a PR is publishing it**: get the
+   title right, and use `chore:`/`ci:` for changes that shouldn't ship. Nobody bumps versions,
+   edits the CHANGELOG or creates tags by hand. To force a version, put `Release-As: X.Y.Z` in a
+   commit body. PyPI versions can't be replaced, so a bad release is fixed by the next one.
 
 ## Rules
 

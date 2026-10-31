@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "python",
+  "include-v-in-tag": true,
+  "bump-minor-pre-major": true,
+  "changelog-sections": [
+    {"type": "feat", "section": "Added"},
+    {"type": "fix", "section": "Fixed"},
+    {"type": "perf", "section": "Changed"},
+    {"type": "refactor", "section": "Changed"},
+    {"type": "docs", "section": "Documentation"},
+    {"type": "revert", "section": "Reverted"},
+    {"type": "ci", "section": "Maintenance", "hidden": true},
+    {"type": "build", "section": "Maintenance", "hidden": true},
+    {"type": "chore", "section": "Maintenance", "hidden": true},
+    {"type": "test", "section": "Maintenance", "hidden": true},
+    {"type": "style", "section": "Maintenance", "hidden": true}
+  ],
+  "packages": {
+    ".": {
+      "package-name": "lobkit",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

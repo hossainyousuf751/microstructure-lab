@@ -5,7 +5,15 @@ versions follow [Semantic Versioning](https://semver.org/) (0.x: minor bumps may
 
 ## [Unreleased]
 
+### Added
+- Publishing to PyPI: `.github/workflows/publish.yml` builds, checks and uploads the package
+  when a GitHub Release is published, via PyPI trusted publishing (no stored token). It refuses
+  to publish if the release tag does not match the version in `pyproject.toml`.
+- Package metadata for PyPI: SPDX license, classifiers, keywords and project URLs. CI builds the
+  package and runs `twine check --strict` on every push.
+
 ### Changed
+- README links are absolute so images and links render on PyPI.
 - CI uses `actions/checkout@v7` and `actions/setup-python@v7` (Node 24); v4/v5 ran on the deprecated Node 20.
 
 ## [0.2.0] - 2026-11-01

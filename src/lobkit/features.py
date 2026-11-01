@@ -83,3 +83,32 @@ def bucket_features(features: pd.DataFrame, trades: pd.DataFrame | None = None,
         t = trades.set_index(pd.to_datetime(trades["ts"], unit="s"))
         out["trade_imbalance"] = (t["side"] * t["qty"]).resample(freq).sum().reindex(out.index).fillna(0.0)
     return out.dropna()
+
+
+def to_bars(features: pd.DataFrame, freq: str = "1s", trades: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Mid-price bars on a regular time grid, e.g. to backtest an intraday signal.
+
+    open/high/low/close of the mid over the updates in each bar, mean spread and
+    n_updates. A bar with no update repeats the previous close (the book did not
+    change). With trades: volume (sum of qty) and signed_volume (buys minus sells).
+
+    Each bar is labelled by its right edge, the time its close is known, so a
+    strategy that decides at row t's close uses nothing after t.
+    """
+    f = features.set_index(pd.to_datetime(features["ts"], unit="s"))
+    g = f["mid"].resample(freq, closed="left", label="right")
+    bars = g.ohlc()
+    bars["close"] = bars["close"].ffill()
+    for c in ("open", "high", "low"):
+        bars[c] = bars[c].fillna(bars["close"])
+    bars["spread"] = f["spread"].resample(freq, closed="left", label="right").mean().ffill()
+    bars["n_updates"] = g.size()
+    if trades is not None:
+        t = trades.set_index(pd.to_datetime(trades["ts"], unit="s"))
+
+        def per_bar(s: pd.Series) -> pd.Series:
+            return s.resample(freq, closed="left", label="right").sum().reindex(bars.index).fillna(0.0)
+
+        bars["volume"] = per_bar(t["qty"])
+        bars["signed_volume"] = per_bar(t["side"] * t["qty"])
+    return bars.dropna()

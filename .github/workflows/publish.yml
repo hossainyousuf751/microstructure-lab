@@ -50,12 +50,20 @@ jobs:
 
       - name: Merge the release PR
         id: merge
-        if: steps.before.outputs.release_created != 'true' && steps.before.outputs.prs_created == 'true'
+        # Runs on every push, not only when release-please reports a new PR: an unchanged release
+        # PR left open by an earlier run is not reported, and must still be released.
+        if: steps.before.outputs.release_created != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label "autorelease: pending" --json number --jq '.[0].number')
-          test -n "$pr" || { echo "no open release PR found"; exit 1; }
+          # Look the PR up by branch over REST: label and search lookups lag a fresh PR by seconds
+          head="${GITHUB_REPOSITORY_OWNER}:release-please--branches--main--components--lobkit"
+          for attempt in 1 2 3; do
+            pr=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=$head" --jq '.[0].number // empty')
+            test -n "$pr" && break
+            sleep 5
+          done
+          test -n "$pr" || { echo "no release PR open: nothing to release"; exit 0; }
           # GitHub computes mergeability a moment after the PR is created or updated: retry briefly
           for attempt in 1 2 3 4 5 6; do
             gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch && break

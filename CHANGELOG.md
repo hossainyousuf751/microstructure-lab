@@ -4,6 +4,13 @@ All notable changes to this project. Versions follow [Semantic Versioning](https
 (0.x: minor bumps may break the API). From 0.2.2 on, entries are written by release-please from
 the conventional titles of merged PRs; don't edit this file by hand.
 
+## [0.2.2](https://github.com/hossainyousuf751/microstructure-lab/compare/v0.2.1...v0.2.2) (2026-11-01)
+
+
+### Documentation
+
+* live results from two-hour BTCUSDT and ETHUSDT sessions ([#7](https://github.com/hossainyousuf751/microstructure-lab/issues/7)) ([e4a2be6](https://github.com/hossainyousuf751/microstructure-lab/commit/e4a2be6b96ce2998778a673e02c46cc81b2db6a4))
+
 ## [0.2.1] - 2026-11-01
 
 First release on PyPI (`pip install lobkit`). No change to the library's behaviour.

@@ -130,35 +130,40 @@ simulated and live tables shows which effects are mechanical consequences of the
 and which require informed traders. Record at least 15 minutes; the script warns when there is
 too little data to say anything.
 
-Results for one session: BTCUSDT, 40 minutes on 2026-11-01 from 03:18 local time (76,296 quote
-updates, 5,813 trades). It was a quiet market: the price stayed within a 181 USDT range and the
-mid changed 688 times, about once every 3.5 seconds. That session is one sample, not a study, and
-the recording is not in the repository (market data is never committed), so treat these numbers
-as an illustration of the pipeline.
+Results for one session, two instruments recorded side by side: BTCUSDT and ETHUSDT, 2 hours each
+on 2026-11-01 from 04:29 local time. BTCUSDT: 187,746 quote updates, 18,463 trades; the price
+stayed within a 162 USDT range and the mid changed 2,176 times, about once every 3.3 seconds.
+ETHUSDT: 127,805 quote updates, 14,136 trades; an 8 USDT range and 2,931 mid changes. Both books
+tick in cents, so a tick is 0.13 basis points of the BTC price but 0.44 of the ETH price, and the
+ETH best queues are deep (31.5 ETH on average against 2.5 BTC). That session is one sample, not a
+study, and the recordings are not in the repository (market data is never committed), so treat
+these numbers as an illustration of the pipeline.
 
-| Result | Live, 1 s buckets | Simulated |
-|---|---|---|
-| Δmid on OFI | β = 0.221 USDT per unit, **R² = 0.56**, t = 55 | R² = 0.42 at 1 s (Study 5), 0.66 at 10 s |
-| Impact coefficient vs 1/depth | R² = 0.85 across depth quintiles | R² = 0.93 (10 s) |
-| P(next move up), imbalance < 0.1 → > 0.9 | 0.38 → 0.97, not monotone in between | monotone |
-| Next 1 s move from queue imbalance | out-of-sample R² 3.3% | 0.7% (next 10 s) |
-| Multi-level OFI, best 1 → 10 levels (5 s) | out-of-sample R² 0.50 → 0.40–0.49: no gain | 0.66 → 0.88, 1 → 5 levels (10 s) |
-| Micro-price vs mid, next price change | Stoikov −0.34% MSE, naive −0.32%: no real edge | Stoikov −6.6%, naive −1.3% |
+| Result | BTCUSDT, 1 s buckets | ETHUSDT, 1 s buckets | Simulated |
+|---|---|---|---|
+| Δmid on OFI | β = 0.203 USDT per BTC, **R² = 0.59**, t = 102 | β = 0.0008 USDT per ETH, **R² = 0.70**, t = 129 | R² = 0.42 at 1 s (Study 5), 0.66 at 10 s |
+| Impact coefficient vs 1/depth | R² = 0.91 across depth quintiles | R² = 0.87 | R² = 0.93 (10 s) |
+| P(next move up), imbalance < 0.1 → > 0.9 | 0.09 → 0.93, monotone | 0.09 → 0.84, dips at 0.5–0.6 | monotone |
+| Next 1 s move from queue imbalance | out-of-sample R² 2.0% | 4.6% | 0.7% (next 10 s) |
+| Multi-level OFI, best 1 → 10 levels (5 s) | out-of-sample R² 0.33 → 0.38 | 0.45 → 0.47 | 0.66 → 0.88, 1 → 5 levels (10 s) |
+| Micro-price vs mid, next price change | Stoikov −0.6% MSE, naive −0.03% | **Stoikov −10.8%**, naive −4.2% | Stoikov −6.6%, naive −1.3% |
 
 ![Binance OFI impact](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/binance_btcusdt_ofi_impact.png)
 
-**What survives contact with a real book.** The contemporaneous OFI relation is at least as
-strong live as in the simulator at 1-second buckets, and impact is still larger when the book is
-thin. Queue imbalance predicts the next move at the extremes, and on the live book it even has a
-little out-of-sample power over the next second.
+**What survives contact with a real book.** The contemporaneous OFI relation is stronger live
+than in the simulator at 1-second buckets on both instruments, and impact is larger when the book
+is thin. Queue imbalance predicts the direction of the next move at the extremes, and has a little
+out-of-sample power over the next second.
 
-**What doesn't.** Deeper levels add nothing out of sample, while they explained a lot in the
-simulator. On BTCUSDT the levels behind the best quote are a cent apart and mostly small resting
-orders, so their flow carries little information. Neither micro-price beats the mid by more than
-a third of a percent. Most rows sit at a one-tick spread with the price unchanged. The 688 price
-changes include 323 updates where one side of the book thinned out for an instant and the spread
-jumped past 1 USDT (up to 10.8), and a squared-error comparison over so few moves is decided by
-those points. A busier session, or a robust loss, is the next step.
+**What depends on the book.** On ETHUSDT the Stoikov micro-price forecasts the next price change
+with 10.8% less squared error than the mid, more than in the simulator, and the edge fades with
+the horizon (4.3% after 5 moves, 0.9% after 20). On BTCUSDT it does not: −0.6%. The BTC book
+often thins out for an instant: the spread was above 1 USDT (100 ticks) in 1,131 updates over 305
+episodes, up to 17.4 USDT, while the ETH spread never exceeded 0.45 USDT. Those blowouts dominate
+a squared-error comparison and wreck the naive micro-price (its gap to the mid has an
+out-of-sample R² of −0.77 for the next second on BTC). Deeper levels add only a few points of R²
+on either book, much less than in the simulator: the levels behind the best quote are a cent apart
+and mostly small resting orders.
 
 ## Study 4: the market maker inside the order book
 
@@ -212,24 +217,30 @@ other venue's order flow explain, and whether either venue's flow or return pred
 known: a simulated venue B that copies venue A 300 ms late. They find the delay exactly
 (correlation 1.00 at +300 ms) and the direction: only B's next move is predictable from A.
 
-Same session as Study 3 (40 minutes; 76,296 Binance and 24,969 Bybit quote updates):
+Same session as Study 3 (2 hours each; 187,746 Binance and 76,632 Bybit quote updates for
+BTCUSDT, 127,805 and 21,344 for ETHUSDT):
 
 | Target venue | R² own OFI | R² other venue's OFI | R² both | Next 1 s from other's OFI (OOS) | Next 1 s from other's return (OOS) |
 |---|---|---|---|---|---|
-| Binance | 0.56 | 0.16 | 0.56 | 0.014 | 0.009 |
-| Bybit | 0.58 | 0.28 | 0.60 | 0.004 | 0.004 |
+| Binance BTCUSDT | 0.59 | 0.23 | 0.59 | 0.059 | 0.064 |
+| Bybit BTCUSDT | 0.54 | 0.33 | 0.58 | 0.002 | 0.001 |
+| Binance ETHUSDT | 0.70 | 0.15 | 0.70 | 0.036 | 0.094 |
+| Bybit ETHUSDT | 0.31 | 0.43 | 0.51 | 0.001 | 0.003 |
 
 ![Lead-lag](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/cross_venue_lead_lag.png)
 
-**No exploitable lead at this resolution.** Returns are most correlated at 0 ms (0.09): the
-venues move within the same 50 ms. Each venue's own order flow explains its price far better than
-the other's. Neither venue's flow or return predicts the other's next second by more than about
-1% out of sample. There is more correlation at negative lags (Bybit first, summed 0.62 against
-0.20 for Binance first), and it persisted after the recorder's timestamp bug was fixed (see
-CHANGELOG), but Bybit's price changed only 218 times, so this is a hypothesis for a longer
-recording, not a finding. One limitation is built in: timestamps are local receive times, so each
-venue's network latency to the recording machine is part of the measured lag. A lead shorter than
-the difference in latencies can't be seen from one machine.
+**Bybit tends to move first, by tens of milliseconds.** Returns are most correlated at 0 ms (0.25
+for BTCUSDT, 0.18 for ETHUSDT): most moves land on both venues within the same 50 ms. What is left
+is lopsided in the same way on both instruments. The correlation at negative lags (Bybit first)
+sums to 1.00 for BTCUSDT and 1.13 for ETHUSDT, against 0.26 at positive lags; the strongest
+off-zero lag is Bybit 150 ms ahead on both. The regressions agree: Bybit's flow and return predict
+Binance's next second (out-of-sample R² 3.6–9.4%), Binance's predict Bybit's by 0.3% or less. On
+ETHUSDT, Binance's flow explains more of Bybit's price than Bybit's own flow does (0.43 against
+0.31). The earlier 40-minute session pointed the same way; two instruments over two hours make it
+a consistent pattern, but still one session. One limitation is built in: timestamps are local
+receive times, so each venue's network latency to the recording machine is part of the measured
+lag. A lead shorter than the difference in latencies can't be told apart from a faster connection
+to Bybit, and a recording from a second location is the way to check.
 
 ## Roadmap
 

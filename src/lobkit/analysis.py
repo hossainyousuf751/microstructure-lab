@@ -7,6 +7,8 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from lobkit.features import bucket_features, l1_features
+
 
 @dataclass(frozen=True)
 class RegressionResult:
@@ -260,3 +262,41 @@ def cross_venue_impact(buckets_a: pd.DataFrame, buckets_b: pd.DataFrame, names=(
             row[f"next_oos_r2_{feats[0]}"] = predictive_r2(lead, feats, train_frac=train_frac)["oos_r2"]
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+def calibrate_costs(quotes: pd.DataFrame, trades: pd.DataFrame, freq: str = "10s") -> dict:
+    """Trading-cost inputs measured from an order book, as a dict of plain floats.
+
+    - half_spread_bps: median over book updates of (ask - bid) / 2 / mid, in basis
+      points: what a small market order pays to cross half the spread.
+    - ofi_impact_beta, ofi_impact_r2: slope (price units per unit of size) and R²
+      of d_mid = alpha + beta * OFI over `freq` buckets (Cont, Kukanov & Stoikov 2014).
+    - mean_depth: mean best-level queue, 0.5 * (bid_sz + ask_sz), in units of size.
+    - trade_size_mean, trade_size_median, trade_size_p95: units of size.
+    - volume_per_sec, trades_per_sec: over the span of the quotes.
+    - mid_price: median mid; mid_vol_per_sqrt_sec: standard deviation of the log
+      mid change per bucket divided by sqrt(bucket seconds), so sigma over a
+      horizon h seconds is mid_vol_per_sqrt_sec * sqrt(h).
+
+    Averages are per book update, not time-weighted. Timestamps are whatever
+    clock the frames carry (load_recording puts both on local receive time).
+    """
+    f = l1_features(quotes)
+    b = bucket_features(f, trades, freq)
+    fit = ofi_price_impact(b)
+    seconds = float(f["ts"].iloc[-1] - f["ts"].iloc[0])
+    bucket_sec = pd.Timedelta(freq).total_seconds()
+    qty = trades["qty"].to_numpy(dtype=float)
+    return {
+        "half_spread_bps": float(np.median(f["spread"] / 2 / f["mid"]) * 1e4),
+        "ofi_impact_beta": fit.beta,
+        "ofi_impact_r2": fit.r2,
+        "mean_depth": float((0.5 * (f["bid_sz"] + f["ask_sz"])).mean()),
+        "trade_size_mean": float(qty.mean()),
+        "trade_size_median": float(np.median(qty)),
+        "trade_size_p95": float(np.percentile(qty, 95)),
+        "volume_per_sec": float(qty.sum() / seconds),
+        "trades_per_sec": float(len(qty) / seconds),
+        "mid_price": float(f["mid"].median()),
+        "mid_vol_per_sqrt_sec": float(np.diff(np.log(b["mid"].to_numpy())).std(ddof=1) / np.sqrt(bucket_sec)),
+    }

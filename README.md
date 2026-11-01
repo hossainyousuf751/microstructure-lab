@@ -134,7 +134,7 @@ Results for one session, two instruments recorded side by side: BTCUSDT and ETHU
 on 2026-11-01 from 04:29 local time. BTCUSDT: 187,746 quote updates, 18,463 trades; the price
 stayed within a 162 USDT range and the mid changed 2,176 times, about once every 3.3 seconds.
 ETHUSDT: 127,805 quote updates, 14,136 trades; an 8 USDT range and 2,931 mid changes. Both books
-tick in cents, so a tick is 0.13 basis points of the BTC price but 0.44 of the ETH price, and the
+tick in cents, so a tick is 0.0013 basis points of the BTC price but 0.044 of the ETH price, and the
 ETH best queues are deep (31.5 ETH on average against 2.5 BTC). That session is one sample, not a
 study, and the recordings are not in the repository (market data is never committed), so treat
 these numbers as an illustration of the pipeline.
@@ -241,6 +241,30 @@ a consistent pattern, but still one session. One limitation is built in: timesta
 receive times, so each venue's network latency to the recording machine is part of the measured
 lag. A lead shorter than the difference in latencies can't be told apart from a faster connection
 to Bybit, and a recording from a second location is the way to check.
+
+## Cost calibration and bars
+
+Two helpers hand order-book measurements to a backtester as plain data:
+
+- **`calibrate_costs(quotes, trades, freq="10s") -> dict`** returns plain floats, with units listed in
+  the docstring:
+  - the median relative half-spread in basis points;
+  - the OFI impact slope and its R²;
+  - mean top-of-book depth;
+  - trade-size statistics;
+  - volume and trade rates per second;
+  - mid-price volatility per √second.
+- **`to_bars(features, freq, trades=None)`** gives regular OHLC bars of the mid, plus mean spread,
+  update counts and, if trades are passed, volume. Each bar is labelled by its right edge, the time
+  its close is known, so a strategy deciding at a bar's close uses nothing later.
+
+## Part of quant-stack
+
+microstructure-lab is one of five independent libraries linked in
+[quant-stack](https://github.com/hossainyousuf751/quant-stack). There, `calibrate_costs` becomes a
+backtest-lab `SpreadImpactCost`, and `to_bars` feeds an intraday OFI signal through backtest-lab's
+look-ahead check, execution lag and Deflated Sharpe (study S4). lobkit itself still depends only
+on numpy and pandas.
 
 ## Roadmap
 

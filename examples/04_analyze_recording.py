@@ -15,5 +15,7 @@ path = Path(sys.argv[1])
 tick = float(sys.argv[2]) if len(sys.argv) > 2 else 0.01
 label = "Binance " + path.name.split("_")[0].upper()
 quotes, trades = load_recording(path)
+mid = 0.5 * (quotes["bid_px"] + quotes["ask_px"])
+print(f"[{label}] one tick ({tick}) is {tick / mid.median() * 1e4:.4f} bp of the median mid")
 run_study(quotes, trades, label, freq="1s", unit="USDT", tick=tick)
 run_multi_level(load_depth(path), label + " depth", freq="5s")     # depth is sampled once a second

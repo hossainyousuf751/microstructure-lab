@@ -4,6 +4,13 @@ All notable changes to this project. Versions follow [Semantic Versioning](https
 (0.x: minor bumps may break the API). From 0.2.2 on, entries are written by release-please from
 the conventional titles of merged PRs; don't edit this file by hand.
 
+## [0.3.0](https://github.com/hossainyousuf751/microstructure-lab/compare/v0.2.2...v0.3.0) (2026-11-02)
+
+
+### Added
+
+* calibrate_costs and to_bars for backtesting with order-book costs ([#10](https://github.com/hossainyousuf751/microstructure-lab/issues/10)) ([a2788f1](https://github.com/hossainyousuf751/microstructure-lab/commit/a2788f1fcedf4b1fa28270fd66a6a9d2af5971f8))
+
 ## [0.2.2](https://github.com/hossainyousuf751/microstructure-lab/compare/v0.2.1...v0.2.2) (2026-11-01)
 
 

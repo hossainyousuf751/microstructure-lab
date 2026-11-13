@@ -176,34 +176,34 @@ order reaches it.
 
 The paper's inputs are calibrated on the book itself: σ = 1.08 ticks/√s from 1-second mid
 changes; A = 0.59 fills/s and k = 1.39 per tick from a quoter resting at fixed distances from the
-mid. Episodes last T = 300 s, 200 per row:
+mid. Episodes last T = 300 s, 2,500 per row:
 
 | γ | Strategy | Mean P&L | Std P&L | Std final inventory | Fills | Spread captured | Adverse sel. 1 s | Adverse sel. 10 s | Kept |
 |---|---|---|---|---|---|---|---|---|---|
-| 0.001 | inventory | 30.1 | 25.9 | 4.0 | 71 | 0.82 | −0.21 | −0.30 | 63% |
-| 0.001 | symmetric | 46.5 | 58.3 | 7.2 | 70 | 0.84 | −0.18 | −0.17 | 80% |
-| **0.005** | **inventory** | **19.4** | **13.3** | **2.4** | **64** | **0.79** | **−0.30** | **−0.48** | **39%** |
-| **0.005** | **symmetric** | **28.9** | **59.0** | **6.9** | **51** | **0.88** | **−0.19** | **−0.20** | **77%** |
-| 0.02 | inventory | 8.0 | 7.5 | 1.4 | 26 | 0.81 | −0.35 | −0.53 | 35% |
-| 0.02 | symmetric | 14.5 | 25.9 | 4.1 | 18 | 0.96 | −0.20 | −0.17 | 82% |
+| 0.001 | inventory | 31.6 | 24.6 | 3.7 | 72 | 0.81 | −0.21 | −0.30 | 64% |
+| 0.001 | symmetric | 46.2 | 66.7 | 7.4 | 70 | 0.84 | −0.19 | −0.18 | 79% |
+| **0.005** | **inventory** | **22.6** | **13.1** | **2.3** | **63** | **0.79** | **−0.27** | **−0.42** | **47%** |
+| **0.005** | **symmetric** | **36.8** | **55.8** | **6.7** | **51** | **0.88** | **−0.19** | **−0.19** | **79%** |
+| 0.02 | inventory | 8.5 | 7.0 | 1.5 | 25 | 0.82 | −0.34 | −0.50 | 38% |
+| 0.02 | symmetric | 14.0 | 26.2 | 4.0 | 18 | 0.96 | −0.19 | −0.17 | 82% |
 
 (P&L in ticks; spread captured and adverse selection in ticks per fill; "kept" is after 10 s. Markouts
 leave out fills too close to the end of an episode to have a full horizon.)
 
-**Inventory control still works.** The skewed quoter cuts P&L volatility by 2.3–4.4× and final
-inventory by 1.8–2.9×, as in the paper.
+**Inventory control still works.** The skewed quoter cuts P&L volatility by 2.7–4.3× and final
+inventory by 2.0–2.9×, as in the paper.
 
 **But it pays for it in adverse selection.** Every fill captures 0.79–0.96 ticks against the mid
 at that moment. Ten seconds later the symmetric quoter has given back about a fifth of that; the
-inventory quoter gives back 37–65%. To unload inventory it quotes aggressively on one side, often
+inventory quoter gives back 36–62%. To unload inventory it quotes aggressively on one side, often
 alone at a new best price, and an order alone at the front is the first to be hit when the price
-moves. As a result inventory control costs 33–45% of mean P&L here, against about 5% in the
+moves. As a result inventory control costs 32–40% of mean P&L here, against about 5% in the
 paper's model (Study 2), where a fill says little about the next price move.
 
 **The two costs have different clocks.** The symmetric quoter's loss is complete within a second
-(−0.17 to −0.21 ticks at both horizons): it is the tick the price jumps when the quoter's queue
-is used up. The inventory quoter loses −0.21 to −0.35 in the first second and keeps losing until
-−0.30 to −0.53 at ten seconds, so its fills come before sustained moves, not just a one-tick jump.
+(−0.17 to −0.19 ticks at both horizons): it is the tick the price jumps when the quoter's queue
+is used up. The inventory quoter loses −0.21 to −0.34 in the first second and keeps losing until
+−0.30 to −0.50 at ten seconds, so its fills come before sustained moves, not just a one-tick jump.
 
 ![AS in the LOB](https://raw.githubusercontent.com/hossainyousuf751/microstructure-lab/main/docs/as_in_lob.png)
 

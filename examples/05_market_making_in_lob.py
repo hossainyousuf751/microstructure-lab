@@ -20,7 +20,7 @@ rows = []
 for gamma in (0.001, 0.005, 0.02):
     p = ASParams(T=300.0, sigma=sigma, gamma=gamma, k=k, A=A)
     for strategy in ("inventory", "symmetric"):
-        d = simulate_as_lob(p, strategy, n_episodes=200)
+        d = simulate_as_lob(p, strategy, n_episodes=2500)
         rows.append({"gamma": gamma, "strategy": strategy, "spread_t0": optimal_spread(0, p),
                      "mean_pnl": d["pnl"].mean(), "std_pnl": d["pnl"].std(), "std_final_q": d["final_q"].std(),
                      "fills": d["n_fills"].mean(), "spread_capture": d["spread_capture"].mean(),

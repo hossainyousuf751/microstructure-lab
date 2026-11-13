@@ -4,6 +4,13 @@ All notable changes to this project. Versions follow [Semantic Versioning](https
 (0.x: minor bumps may break the API). From 0.2.2 on, entries are written by release-please from
 the conventional titles of merged PRs; don't edit this file by hand.
 
+## [0.3.1](https://github.com/hossainyousuf751/microstructure-lab/compare/v0.3.0...v0.3.1) (2026-11-13)
+
+
+### Documentation
+
+* rerun Study 4 with 2,500 episodes per row ([#12](https://github.com/hossainyousuf751/microstructure-lab/issues/12)) ([2298c92](https://github.com/hossainyousuf751/microstructure-lab/commit/2298c92900ee009fdf4bf9cf955237388d8bae6c))
+
 ## [0.3.0](https://github.com/hossainyousuf751/microstructure-lab/compare/v0.2.2...v0.3.0) (2026-11-02)
 
 
